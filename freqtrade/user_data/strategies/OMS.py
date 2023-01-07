@@ -19,6 +19,7 @@ from technical import qtpylib
 
 
 class OMS(IStrategy):
+    # Source of Strategy Idea: https://daviddtech.medium.com/easy-1-minute-scalping-trading-strategy-simple-but-profitable-e9a62885c1df
     INTERFACE_VERSION = 3
 
     # Optimal timeframe for the strategy
