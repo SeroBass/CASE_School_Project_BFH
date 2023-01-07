@@ -1,0 +1,43 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © SeroBass
+
+//@version=5
+
+strategy("One Minute Scalping Strategy", "OMS", true, initial_capital = 100000, calc_on_every_tick = true, default_qty_type = strategy.cash, margin_long = 100, currency = currency.USD, margin_short = 100, max_boxes_count = 500, max_labels_count = 500, max_lines_count = 500)
+entry_amount = input.float(10000, title = "Entry amount")
+
+// Definition of EMA
+// Length = 50
+EMA = ta.ema(close, 50)
+
+// Definition of RSI
+// Length = 14
+RSI = ta.rsi(close, 14)
+
+// Definition of Engulfing Patterns
+Is_Bullish_ENG()=>
+    result = false
+    if close[1] < open[1] and close[0] > open[0]
+        if open[1] < close[0] and open[0] < close[1]
+            result := true
+    result
+
+Is_Bearish_ENG()=>
+    result = false
+    if close[1] > open[1] and close[0] < open[0]
+        if close[1] < open[0] and open[1] > close[0]
+            result := true
+    result
+
+eng_green = Is_Bullish_ENG()
+eng_red = Is_Bearish_ENG()
+
+// Long Position
+if close > EMA and RSI > 50 and eng_green and barstate.isconfirmed and strategy.position_size == 0
+    strategy.entry('Entry Long', strategy.long, entry_amount / close)
+    strategy.exit('Exit Long Roi_Stoploss', 'Entry Long',limit = close + (close * 0.009), stop = close - (close * 0.009))
+
+// Short Position
+if close < EMA and RSI < 50 and eng_red and barstate.isconfirmed and strategy.position_size == 0
+    strategy.entry('Entry Short', strategy.short, entry_amount / close)
+    strategy.exit('Exit Short Roi_Stoploss', 'Entry Short',limit = close - (close * 0.009), stop = close + (close * 0.009))

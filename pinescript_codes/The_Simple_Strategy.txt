@@ -1,0 +1,43 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © SeroBass
+
+//@version=5
+
+// Source of Strategy Idea: "The Simple Strategy" by Markus Heitkoetter
+strategy("The Simple Strategy", "TSS", true, initial_capital = 100000, calc_on_every_tick = true, default_qty_type = strategy.cash, margin_long = 100, currency = currency.USD, margin_short = 100, max_boxes_count = 500, max_labels_count = 500, max_lines_count = 500)
+entry_amount = input.float(10000, title = "Entry amount")
+
+// Definition of RSI
+// Range = 14
+RSI = ta.rsi(close, 14)
+
+// Collect data from daily timeframe
+high_1D = request.security(syminfo.tickerid, "1D", high)
+low_1D = request.security(syminfo.tickerid, "1D", low)
+
+// Definition of MACD
+// Fast EMA = 12, Slow EMA = 26, Signal length = 9
+[macd_line, signal_line, hist_line] = ta.macd(close, 12, 26, 9)
+
+// Definition of Bollinger Bands
+// Length = 200, Deviation = 2
+BBbasis = ta.sma(close, 200)
+BBdev = 2 * ta.stdev(close, 200)
+BBupper = BBbasis + BBdev
+BBlower = BBbasis - BBdev
+
+// Calculation of ADR
+// Length = 7
+ADR(high_, low_)=>
+    result = high_ - low_
+adr = math.sum(ADR(high_1D, low_1D), 7) / 7
+
+// Long Positions
+if BBupper > BBupper[1] and macd_line > 0 and macd_line > signal_line and RSI > 70 and barstate.isconfirmed and strategy.position_size == 0
+    strategy.entry('Entry Long', strategy.long, entry_amount / close)
+    strategy.exit('Exit Long Roi_Stoploss', 'Entry Long',limit = close + (adr * 0.15), stop = close - (adr * 0.1))
+
+// Short Positions
+if BBlower < BBlower[1] and macd_line < 0 and macd_line < signal_line and RSI < 30 and barstate.isconfirmed and strategy.position_size == 0
+    strategy.entry('Entry Short', strategy.short, entry_amount / close)
+    strategy.exit('Exit Short Roi_Stoploss', 'Entry Short',limit = close - (adr * 0.15), stop = close + (adr * 0.1))

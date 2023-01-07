@@ -1,0 +1,69 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © SeroBass
+
+//@version=5
+
+strategy("Five Minute Scalping Strategy", "FMS", true, initial_capital = 100000, calc_on_every_tick = true, default_qty_type = strategy.cash, margin_long = 100, currency = currency.USD,    margin_short = 100, max_boxes_count = 500, max_labels_count = 500, max_lines_count = 500)
+entry_amount = input.float(10000, title = "Entry amount")
+
+// Definition of EMA
+// Length = 200
+EMA = ta.ema(close, 200)
+
+// Definition of ADX
+// Source: https://www.tradingview.com/script/VTPMMOrx-ADX-and-DI/
+len = 14
+th = 20
+
+TrueRange = math.max(math.max(high-low, math.abs(high-nz(close[1]))), math.abs(low-nz(close[1])))
+DirectionalMovementPlus = high-nz(high[1]) > nz(low[1])-low ? math.max(high-nz(high[1]), 0): 0
+DirectionalMovementMinus = nz(low[1])-low > high-nz(high[1]) ? math.max(nz(low[1])-low, 0): 0
+
+SmoothedTrueRange = 0.0
+SmoothedTrueRange := nz(SmoothedTrueRange[1]) - (nz(SmoothedTrueRange[1])/len) + TrueRange
+
+SmoothedDirectionalMovementPlus = 0.0
+SmoothedDirectionalMovementPlus := nz(SmoothedDirectionalMovementPlus[1]) - (nz(SmoothedDirectionalMovementPlus[1])/len) + DirectionalMovementPlus
+
+SmoothedDirectionalMovementMinus = 0.0
+SmoothedDirectionalMovementMinus := nz(SmoothedDirectionalMovementMinus[1]) - (nz(SmoothedDirectionalMovementMinus[1])/len) + DirectionalMovementMinus
+
+DIPlus = SmoothedDirectionalMovementPlus / SmoothedTrueRange * 100
+DIMinus = SmoothedDirectionalMovementMinus / SmoothedTrueRange * 100
+DX = math.abs(DIPlus-DIMinus) / (DIPlus+DIMinus)*100
+ADX = ta.sma(DX, len)
+
+// Source Squeeze Momentum: https://www.tradingview.com/script/nqQ1DT5a-Squeeze-Momentum-Indicator-LazyBear/
+// Definition Bollinger Bands
+// Length = 200, Deviation = 2
+basis = ta.sma(close, 200)
+dev = 2 * ta.stdev(close, 200)
+upperBB = basis + dev
+lowerBB = basis - dev
+
+// Definition KC
+// True Range = True, Length = 20, Factor = 1.5
+lengthKC = 20
+multKC = 1.5
+ma = ta.sma(close, lengthKC)
+range_ = true ? ta.tr : (high - low)
+rangema = ta.sma(range_, lengthKC)
+upperKC = ma + rangema * multKC
+lowerKC = ma - rangema * multKC
+
+// Definition of Squeeze
+sqzOn  = (lowerBB > lowerKC) and (upperBB < upperKC)
+sqzOff = (lowerBB < lowerKC) and (upperBB > upperKC)
+noSqz  = (sqzOn == false) and (sqzOff == false)
+
+val = ta.linreg(close - math.avg(math.avg(ta.highest(high, lengthKC), ta.lowest(low, lengthKC)), ta.sma(close,lengthKC)), lengthKC, 0)
+
+// Long Position
+if val > 0 and close > EMA and ADX > 25 and sqzOff and not sqzOff[1] and strategy.position_size == 0
+    strategy.entry('Entry Long', strategy.long, entry_amount / close)
+    strategy.exit('Exit Long Roi_Stoploss', 'Entry Long',limit = close + (close * 0.027), stop = close - (close * 0.02))
+
+// Short Position
+if val < 0 and close < EMA and ADX > 25 and sqzOff and not sqzOff[1] and strategy.position_size == 0
+    strategy.entry('Entry Short', strategy.short, entry_amount / close)
+    strategy.exit('Exit Short Roi_Stoploss', 'Entry Short',limit = close - (close * 0.027), stop = close + (close * 0.02))

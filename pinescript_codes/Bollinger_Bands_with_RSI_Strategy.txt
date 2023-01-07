@@ -1,0 +1,34 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © SeroBass
+
+//@version=5
+
+strategy("Bollinger Band with RSI", "BBR", true, initial_capital = 100000, calc_on_every_tick = true, default_qty_type = strategy.cash, margin_long = 100, currency = currency.USD, margin_short = 100, max_boxes_count = 500, max_labels_count = 500, max_lines_count = 500, max_bars_back = 500)
+entry_amount = input.float(10000, title = "Entry amount")
+
+// Definition of RSI
+// Length = 14
+RSI = ta.rsi(close, 14)
+
+// Definition of Bollinger Bands
+// Length = 14, Deviation = 2
+BBbasis = ta.sma(close, 200)
+BBdev = 2 * ta.stdev(close, 200)
+BBupper = BBbasis + BBdev
+BBlower = BBbasis - BBdev
+
+// Long Position
+if  RSI < 30 and close < BBlower and strategy.position_size == 0 and barstate.isconfirmed
+    strategy.entry('Entry Long', strategy.long, entry_amount / close)
+    strategy.exit('Exit Long Stoploss', 'Entry Long', stop = close - (close * 0.25))
+
+// Short Position
+if RSI > 70 and close > BBupper and strategy.position_size == 0 and barstate.isconfirmed
+    strategy.entry('Entry Short', strategy.short, entry_amount / close)
+    strategy.exit('Exit Short Stoploss', 'Entry Short', stop = close + (close * 0.25))
+
+// Close positions on given RSI value
+if strategy.position_size > 0 and RSI > 70
+    strategy.close('Entry Long', immediately = true)
+if strategy.position_size < 0 and RSI < 30
+    strategy.close('Entry Short', immediately = true)
