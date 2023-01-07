@@ -3,7 +3,7 @@
 
 //@version=5
 
-strategy("Five Minute Scalping Strategy", "FMS", true, initial_capital = 100000, calc_on_every_tick = true, default_qty_type = strategy.cash, margin_long = 100, currency = currency.USD,    margin_short = 100, max_boxes_count = 500, max_labels_count = 500, max_lines_count = 500)
+strategy("Five Minute Scalping Strategy", "FMS", true, initial_capital = 100000, calc_on_every_tick = true, default_qty_type = strategy.cash, currency = currency.USD)
 entry_amount = input.float(10000, title = "Entry amount")
 
 // Definition of EMA

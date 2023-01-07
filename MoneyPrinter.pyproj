@@ -710,7 +710,7 @@
     <Folder Include="freqtrade\user_data\plot\" />
     <Folder Include="freqtrade\user_data\strategies\" />
     <Folder Include="freqtrade\user_data\strategies\__pycache__\" />
-    <Folder Include="pinescript_codes\" />
+    <Folder Include="pinescript_strategies\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="freqtrade\.coveragerc" />
@@ -2418,10 +2418,10 @@
     <Content Include="freqtrade\user_data\strategies\__pycache__\test.cpython-39.pyc" />
     <Content Include="freqtrade\user_data\strategies\__pycache__\TheSimpleStrategy.cpython-39.pyc" />
     <Content Include="freqtrade\user_data\strategies\__pycache__\TSS.cpython-39.pyc" />
-    <Content Include="pinescript_codes\Bollinger_Bands_with_RSI_Strategy.txt" />
-    <Content Include="pinescript_codes\Five_Minute_Scalping_Strategy.txt" />
-    <Content Include="pinescript_codes\One_Minute_Scalping_Strategy.txt" />
-    <Content Include="pinescript_codes\The_Simple_Strategy.txt" />
+    <Content Include="pinescript_strategies\Bollinger_Bands_with_RSI_Strategy.txt" />
+    <Content Include="pinescript_strategies\Five_Minute_Scalping_Strategy.txt" />
+    <Content Include="pinescript_strategies\One_Minute_Scalping_Strategy.txt" />
+    <Content Include="pinescript_strategies\The_Simple_Strategy.txt" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>

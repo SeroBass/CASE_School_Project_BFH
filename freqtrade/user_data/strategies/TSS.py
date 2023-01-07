@@ -38,7 +38,6 @@ class TSS(IStrategy):
     # Optimal stoploss designed for the strategy.
     stoploss = -0.2
 
-
     process_only_new_candles = True
 
     use_exit_signal = True
@@ -50,7 +49,6 @@ class TSS(IStrategy):
 
     # Calls function "custom_stoploss"
     use_custom_stoploss = True
-
 
     order_types = {
         'entry': 'market',

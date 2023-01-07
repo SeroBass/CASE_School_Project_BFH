@@ -41,6 +41,7 @@ class BBR(IStrategy):
     can_short: bool = True
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+
         # RSI
         dataframe['rsi'] = ta.RSI(dataframe, timeperiod=14)
 
@@ -69,7 +70,6 @@ class BBR(IStrategy):
             ),
             'enter_short'] = 1
         
-
         return dataframe
 
     def populate_exit_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
